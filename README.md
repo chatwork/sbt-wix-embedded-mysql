@@ -1,0 +1,1 @@
+# sbt-wix-embedded-mysql

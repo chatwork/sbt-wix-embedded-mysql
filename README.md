@@ -16,6 +16,12 @@ addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.0")
 
 ### Basic Configuration
 
+If you want default settings, no configuration is necessary.Please refer to [here](src/main/scala/com/chatwork/sbt/wix/embedded/mysql/WixMySQLPlugin.scala) for sbt keys of the plugin.
+
+### An example for configuration
+
+**`build.sbt`**
+
 ```scala
 wixMySQLVersion := com.wix.mysql.distribution.Version.v5_7_latest
 
@@ -26,12 +32,14 @@ wixMySQLUserName := Some("my-db-user")
 wixMySQLPassword := Some("my-db-passwd")
 ```
 
-### Task
+### Task of sbt
+
+You can use sbt tasks that the followings.
 
 ```scala
 // start mysqld
-wixMySQLStart
+> wixMySQLStart
 
 // stop mysqld
-wixMySQLStop
+> wixMySQLStop
 ```

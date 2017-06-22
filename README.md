@@ -55,7 +55,7 @@ You can use sbt tasks that the followings.
 testOptions in Test ++= Seq(
   Tests.Setup { () =>
     wixMySQLStart.value
-    // If you want to use the fly way together, please join the two tasks using `Def.sequential` as follows.
+    // If you want to use the flywayMigrate together, please join the two tasks using `Def.sequential` as follows.
     // Def.sequential(wixMySQLStart, flywayMigrate).value
   },
   Tests.Cleanup { () =>

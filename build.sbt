@@ -1,6 +1,6 @@
 sbtPlugin := true
 
-sonatypeProfileName := "com.chatwork"
+sonatypeProfileName := "com.chatwork.sbt-wix-embedded-mysql"
 
 organization := "com.chatwork"
 

@@ -1,4 +1,4 @@
-# sbt-wix-embedded-mysql (WIP)
+# sbt-wix-embedded-mysql
 
 sbt-wix-embedded-mysql is sbt-plugin for [wix-embedded-mysql](https://github.com/wix/wix-embedded-mysql)
 
@@ -55,6 +55,8 @@ You can use sbt tasks that the followings.
 testOptions in Test ++= Seq(
   Tests.Setup { () =>
     wixMySQLStart.value
+    // If you want to use the fly way together, please join the two tasks using `Def.sequential` as follows.
+    // Def.sequential(wixMySQLStart, flywayMigrate).value
   },
   Tests.Cleanup { () =>
     wixMySQLStop.value

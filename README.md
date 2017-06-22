@@ -43,3 +43,17 @@ You can use sbt tasks that the followings.
 // stop mysqld
 > wixMySQLStop
 ```
+
+
+### How to use for testing
+
+```
+testOptions in Test ++= Seq(
+  Tests.Setup { () =>
+    wixMySQLStart.value
+  },
+  Tests.Cleanup { () =>
+    wixMySQLStop.value
+  }
+)
+```

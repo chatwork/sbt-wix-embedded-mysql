@@ -6,6 +6,8 @@ sbt-wix-embedded-mysql is sbt-plugin for [wix-embedded-mysql](https://github.com
 
 Add this to your project/plugins.sbt file:
 
+**`project/plugins.sbt`**
+
 ```scala
 resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
 
@@ -46,6 +48,8 @@ You can use sbt tasks that the followings.
 
 
 ### How to use for testing
+
+**`build.sbt`**
 
 ```
 testOptions in Test ++= Seq(

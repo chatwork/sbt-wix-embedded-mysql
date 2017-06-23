@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit
 
 import com.wix.mysql.SqlScriptSource
 import com.wix.mysql.config.{ Charset, DownloadConfig, MysqldConfig, SchemaConfig }
-import sbt.Keys._
 import sbt.{ AutoPlugin, _ }
 import com.wix.mysql.config.DownloadConfig.aDownloadConfig
 import com.wix.mysql.distribution.{ Version => WixMySQLVersion }
@@ -21,7 +20,6 @@ import sbt.Keys._
 import scala.collection.mutable.ArrayBuffer
 
 object WixMySQLPlugin extends AutoPlugin {
-  private var mysqld: Option[EmbeddedMysql] = None
 
   override def trigger = allRequirements
 
@@ -76,24 +74,23 @@ object WixMySQLPlugin extends AutoPlugin {
         if (scripts.isEmpty) builderWithCommands else builderWithCommands.withScripts(scripts.asJava)
       Some(builderWithScripts.build())
     },
+    wixMySQLInstance := None,
     wixMySQLStart := Def.task {
       val logger = streams.value.log
-      val ab     = ArrayBuffer.empty[String]
-      ab.append("wixMySQL")
-      def log(config: MysqldConfig) = {
-        ab.append(s" Version := ${config.getVersion}")
-        ab.append(s" TempDir := ${config.getTempDir}")
-        ab.append(s" Port := ${config.getPort}")
-        ab.append(s" Charset := ${config.getCharset}")
-        ab.append(s" Timeout(sec) := ${config.getTimeout(TimeUnit.SECONDS)}")
-        ab.append(s" Timezone := ${config.getTimeZone}")
-        ab.append(s" Username := ${config.getUsername}")
-        // ab.append(s"wixMySQL: Password := ${config.getPassword}")
-        ab.foreach(s => logger.info(s))
-      }
-      require(mysqld.isEmpty)
-      val instance =
-        (wixMySQLMysqldConfig.value, wixMySQLDownloadConfig.value, wixMySQLSchemaConfig.value) match {
+      if (wixMySQLInstance.value.isEmpty) {
+        val ab = ArrayBuffer.empty[String]
+        ab.append("wixMySQL")
+        def loggingMysqldConfig(config: MysqldConfig) = {
+          ab.append(s" Version := ${config.getVersion}")
+          ab.append(s" TempDir := ${config.getTempDir}")
+          ab.append(s" Port := ${config.getPort}")
+          ab.append(s" Charset := ${config.getCharset}")
+          ab.append(s" Timeout(sec) := ${config.getTimeout(TimeUnit.SECONDS)}")
+          ab.append(s" Timezone := ${config.getTimeZone}")
+          ab.append(s" Username := ${config.getUsername}")
+          ab.foreach(s => logger.info(s))
+        }
+        val instance = (wixMySQLMysqldConfig.value, wixMySQLDownloadConfig.value, wixMySQLSchemaConfig.value) match {
           case (Some(m), dOpt, sOpt) =>
             val builder1 = dOpt.fold(EmbeddedMysql.anEmbeddedMysql(m)) { d =>
               ab.append(s" Download BaseUrl := ${d.getBaseUrl}")
@@ -107,25 +104,34 @@ object WixMySQLPlugin extends AutoPlugin {
               builder1.addSchema(s)
             }
             val instance = builder2.start
-            log(instance.getConfig)
+            loggingMysqldConfig(instance.getConfig)
             instance
           case _ =>
             val instance = EmbeddedMysql.anEmbeddedMysql(wixMySQLVersion.value).start
-            log(instance.getConfig)
+            loggingMysqldConfig(instance.getConfig)
             instance
         }
-      mysqld = Some(instance)
+        wixMySQLInstance := Some(instance)
+        instance
+      } else {
+        logger.info("Mysql has already been started")
+        wixMySQLInstance.value.getOrElse(throw new AssertionError("assertion failed: wixMySQLInstance is empty"))
+      }
     }.value,
     wixMySQLStop := Def.task {
       val logger = streams.value.log
-      mysqld.foreach { e =>
+      if (wixMySQLInstance.value.nonEmpty) {
         try {
-          e.stop()
+          wixMySQLInstance.value
+            .getOrElse(throw new AssertionError("assertion failed: wixMySQLInstance is empty"))
+            .stop()
         } catch {
           case ex: Throwable =>
             logger.error(ex.getMessage)
         }
-        mysqld = None
+        wixMySQLInstance := None
+      } else {
+        logger.info("Mysql has already been stopped")
       }
     }.value
   )
@@ -147,8 +153,9 @@ object WixMySQLPlugin extends AutoPlugin {
     val wixMySQLSchemaCharset  = settingKey[Option[Charset]]("wix-mysql-schema-charset")
     val wixMySQLSchemaCommands = settingKey[Seq[String]]("wix-msyql-schema-commands")
     val wixMySQLSchamaScripts  = settingKey[Seq[SqlScriptSource]]("wix-mysql-schema-scripts")
-    val wixMySQLStart          = taskKey[Unit]("wix-mysql-start")
+    val wixMySQLStart          = taskKey[EmbeddedMysql]("wix-mysql-start")
     val wixMySQLStop           = taskKey[Unit]("wix-mysql-stop")
+    val wixMySQLInstance       = taskKey[Option[EmbeddedMysql]]("wix-mysql-current")
   }
 
 }

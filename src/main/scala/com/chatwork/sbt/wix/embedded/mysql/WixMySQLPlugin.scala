@@ -79,15 +79,16 @@ object WixMySQLPlugin extends AutoPlugin {
     wixMySQLStart := Def.task {
       val logger = streams.value.log
       val ab     = ArrayBuffer.empty[String]
+      ab.append("wixMySQL")
       def log(config: MysqldConfig) = {
-        ab.append(s"wixMySQL: Version := ${config.getVersion}")
-        ab.append(s"wixMySQL: TempDir := ${config.getTempDir}")
-        ab.append(s"wixMySQL: Port := ${config.getPort}")
-        ab.append(s"wixMySQL: Charset := ${config.getCharset}")
-        ab.append(s"wixMySQL: Timeout(sec) := ${config.getTimeout(TimeUnit.SECONDS)}")
-        ab.append(s"wixMySQL: Timezone := ${config.getTimeZone}")
-        ab.append(s"wixMySQL: Username := ${config.getUsername}")
-        ab.append(s"wixMySQL: Password := ${config.getPassword}")
+        ab.append(s" Version := ${config.getVersion}")
+        ab.append(s" TempDir := ${config.getTempDir}")
+        ab.append(s" Port := ${config.getPort}")
+        ab.append(s" Charset := ${config.getCharset}")
+        ab.append(s" Timeout(sec) := ${config.getTimeout(TimeUnit.SECONDS)}")
+        ab.append(s" Timezone := ${config.getTimeZone}")
+        ab.append(s" Username := ${config.getUsername}")
+        // ab.append(s"wixMySQL: Password := ${config.getPassword}")
         ab.foreach(s => logger.info(s))
       }
       require(mysqld.isEmpty)
@@ -95,14 +96,14 @@ object WixMySQLPlugin extends AutoPlugin {
         (wixMySQLMysqldConfig.value, wixMySQLDownloadConfig.value, wixMySQLSchemaConfig.value) match {
           case (Some(m), dOpt, sOpt) =>
             val builder1 = dOpt.fold(EmbeddedMysql.anEmbeddedMysql(m)) { d =>
-              ab.append(s"wixMySQL: BaseUrl = ${d.getBaseUrl}")
-              ab.append(s"wxiMySQL: CacheDir = ${d.getCacheDir}")
+              ab.append(s" Download BaseUrl := ${d.getBaseUrl}")
+              ab.append(s" Download CacheDir := ${d.getCacheDir}")
               EmbeddedMysql.anEmbeddedMysql(m, d)
             }
             val builder2 = sOpt.fold(builder1) { s =>
-              ab.append(s"wixMySQL: Schema Name = ${s.getName}")
-              ab.append(s"wixMySQL: Charset = ${s.getCharset}")
-              ab.append(s"wixMySQL: Scripts = ${s.getScripts}")
+              ab.append(s" Schema Name := ${s.getName}")
+              ab.append(s" Schema Charset := ${s.getCharset}")
+              ab.append(s" Schema Scripts := ${s.getScripts}")
               builder1.addSchema(s)
             }
             val instance = builder2.start

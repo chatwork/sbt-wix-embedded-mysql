@@ -50,7 +50,7 @@ You can use sbt tasks that the followings.
 
 **`build.sbt`**
 
-```
+```scala
 testOptions in Test ++= Seq(
   Tests.Setup { () =>
     wixMySQLStart.value

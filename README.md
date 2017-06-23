@@ -95,7 +95,7 @@ wixMySQLDownloadPath := Some(sys.env("HOME") + "/.wixMySQL/downloads"),
 
 cache:
   directories:
-    - $HOME/.wixMQL
+    - $HOME/.wixMySQL
     
 # -- snip
 ```

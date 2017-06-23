@@ -46,7 +46,6 @@ You can use sbt tasks that the followings.
 > wixMySQLStop
 ```
 
-
 ### How to use for testing
 
 **`build.sbt`**
@@ -62,4 +61,19 @@ testOptions in Test ++= Seq(
     wixMySQLStop.value
   }
 )
+```
+### How to use on Travis
+
+```yaml
+# -- snip
+
+before_install:
+ - sudo apt-get update -qq && sudo apt-get install -y libaio1
+ - sudo hostname "$(hostname | cut -c1-63)"
+ 
+os: linux
+dist: trusty
+sudo: required
+
+# -- snip
 ```

@@ -112,9 +112,10 @@ object WixMySQLPlugin extends AutoPlugin {
             instance
         }
         wixMySQLInstance := Some(instance)
+        logger.info("wixMySQL: mysqld has started")
         instance
       } else {
-        logger.info("Mysql has already been started")
+        logger.info("wixMySQL: mysqld has already been started")
         wixMySQLInstance.value.getOrElse(throw new AssertionError("assertion failed: wixMySQLInstance is empty"))
       }
     }.value,
@@ -130,8 +131,9 @@ object WixMySQLPlugin extends AutoPlugin {
             logger.error(ex.getMessage)
         }
         wixMySQLInstance := None
+        logger.info("wixMySQL: mysqld has stopped")
       } else {
-        logger.info("Mysql has already been stopped")
+        logger.info("wixMySQL: mysqld has already been stopped")
       }
     }.value
   )
@@ -155,7 +157,7 @@ object WixMySQLPlugin extends AutoPlugin {
     val wixMySQLSchamaScripts  = settingKey[Seq[SqlScriptSource]]("wix-mysql-schema-scripts")
     val wixMySQLStart          = taskKey[EmbeddedMysql]("wix-mysql-start")
     val wixMySQLStop           = taskKey[Unit]("wix-mysql-stop")
-    val wixMySQLInstance       = taskKey[Option[EmbeddedMysql]]("wix-mysql-current")
+    val wixMySQLInstance       = settingKey[Option[EmbeddedMysql]]("wix-mysql-instance")
   }
 
 }

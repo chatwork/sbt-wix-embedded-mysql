@@ -15,6 +15,10 @@ import sbt.plugins.JvmPlugin
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
+import sbt._
+import sbt.Keys._
+
+import scala.collection.mutable.ArrayBuffer
 
 object WixMySQLPlugin extends AutoPlugin {
   private var mysqld: Option[EmbeddedMysql] = None
@@ -74,38 +78,52 @@ object WixMySQLPlugin extends AutoPlugin {
     },
     wixMySQLStart := Def.task {
       val logger = streams.value.log
-      require(mysqld.isEmpty)
-      val _mysqld = (wixMySQLMysqldConfig.value, wixMySQLDownloadConfig.value, wixMySQLSchemaConfig.value) match {
-        case (Some(m), dOpt, sOpt) =>
-          val builder1 = dOpt.fold(EmbeddedMysql.anEmbeddedMysql(m)) { d =>
-            logger.info(s"baseUrl = ${d.getBaseUrl}")
-            logger.info(s"cacheDir = ${d.getCacheDir}")
-            EmbeddedMysql.anEmbeddedMysql(m, d)
-          }
-          val builder2 = sOpt.fold(builder1) { s =>
-            logger.info(s"Schema Name = ${s.getName}")
-            logger.info(s"Charset = ${s.getCharset}")
-            logger.info(s"Scripts = ${s.getScripts}")
-            builder1.addSchema(s)
-          }
-          builder2.start()
-        case _ =>
-          EmbeddedMysql.anEmbeddedMysql(wixMySQLVersion.value).start()
+      val ab     = ArrayBuffer.empty[String]
+      def log(config: MysqldConfig) = {
+        ab.append(s"wixMySQL: Version := ${config.getVersion}")
+        ab.append(s"wixMySQL: TempDir := ${config.getTempDir}")
+        ab.append(s"wixMySQL: Port := ${config.getPort}")
+        ab.append(s"wixMySQL: Charset := ${config.getCharset}")
+        ab.append(s"wixMySQL: Timeout(sec) := ${config.getTimeout(TimeUnit.SECONDS)}")
+        ab.append(s"wixMySQL: Timezone := ${config.getTimeZone}")
+        ab.append(s"wixMySQL: Username := ${config.getUsername}")
+        ab.append(s"wixMySQL: Password := ${config.getPassword}")
+        ab.foreach(s => logger.info(s))
       }
-      val config = _mysqld.getConfig
-      logger.info(s"MySQL Version := ${config.getVersion}")
-      logger.info(s"MySQL TempDir := ${config.getTempDir}")
-      logger.info(s"MySQL Port := ${config.getPort}")
-      logger.info(s"MySQL Charset := ${config.getCharset}")
-      logger.info(s"MySQL Timeout(sec) := ${config.getTimeout(TimeUnit.SECONDS)}")
-      logger.info(s"MySQL Timezone := ${config.getTimeZone}")
-      logger.info(s"MySQL Username := ${config.getUsername}")
-      logger.info(s"MySQL Password := ${config.getPassword}")
-      mysqld = Some(_mysqld)
+      require(mysqld.isEmpty)
+      val instance =
+        (wixMySQLMysqldConfig.value, wixMySQLDownloadConfig.value, wixMySQLSchemaConfig.value) match {
+          case (Some(m), dOpt, sOpt) =>
+            val builder1 = dOpt.fold(EmbeddedMysql.anEmbeddedMysql(m)) { d =>
+              ab.append(s"wixMySQL: BaseUrl = ${d.getBaseUrl}")
+              ab.append(s"wxiMySQL: CacheDir = ${d.getCacheDir}")
+              EmbeddedMysql.anEmbeddedMysql(m, d)
+            }
+            val builder2 = sOpt.fold(builder1) { s =>
+              ab.append(s"wixMySQL: Schema Name = ${s.getName}")
+              ab.append(s"wixMySQL: Charset = ${s.getCharset}")
+              ab.append(s"wixMySQL: Scripts = ${s.getScripts}")
+              builder1.addSchema(s)
+            }
+            val instance = builder2.start
+            log(instance.getConfig)
+            instance
+          case _ =>
+            val instance = EmbeddedMysql.anEmbeddedMysql(wixMySQLVersion.value).start
+            log(instance.getConfig)
+            instance
+        }
+      mysqld = Some(instance)
     }.value,
     wixMySQLStop := Def.task {
+      val logger = streams.value.log
       mysqld.foreach { e =>
-        e.stop()
+        try {
+          e.stop()
+        } catch {
+          case ex: Throwable =>
+            logger.error(ex.getMessage)
+        }
         mysqld = None
       }
     }.value

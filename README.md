@@ -2,6 +2,8 @@
 
 sbt-wix-embedded-mysql is sbt-plugin for [wix-embedded-mysql](https://github.com/wix/wix-embedded-mysql)
 
+You can start and stop embedded MySQL on sbt task.
+
 ## Installation
 
 Add this to your project/plugins.sbt file:
@@ -18,7 +20,7 @@ addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.8")
 
 ### Basic Configuration
 
-If you want default settings, no configuration is necessary.Please refer to [here](src/main/scala/com/chatwork/sbt/wix/embedded/mysql/WixMySQLPlugin.scala) for sbt keys of the plugin.
+If you want default settings, no configuration is necessary. Please refer to [here](src/main/scala/com/chatwork/sbt/wix/embedded/mysql/WixMySQLPlugin.scala) for sbt keys of the plugin.These sbt keys base on the API of [wix-embedded-mysql](https://github.com/wix/wix-embedded-mysql). If you understand how to use wix-embedded-mysql, it is easy to use this plugin.
 
 ### An example for configuration
 

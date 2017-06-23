@@ -64,6 +64,8 @@ testOptions in Test ++= Seq(
 ```
 ### How to use on Travis
 
+**`.travis.yml`**
+
 ```yaml
 # -- snip
 
@@ -75,5 +77,25 @@ os: linux
 dist: trusty
 sudo: required
 
+# -- snip
+```
+
+#### Seting up download cache on Travis
+
+**`build.sbt`**
+
+```scala
+wixMySQLDownloadPath := Some(sys.env("HOME") + "/.wixMySQL/downloads"),
+```
+
+**`.travis.yml`**
+
+```yaml
+# -- snip
+
+cache:
+  directories:
+    - $HOME/.wixMQL
+    
 # -- snip
 ```

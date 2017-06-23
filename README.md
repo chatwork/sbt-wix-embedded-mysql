@@ -11,7 +11,7 @@ Add this to your project/plugins.sbt file:
 ```scala
 resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
 
-addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.5")
+addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.6")
 ```
 
 ## Usage

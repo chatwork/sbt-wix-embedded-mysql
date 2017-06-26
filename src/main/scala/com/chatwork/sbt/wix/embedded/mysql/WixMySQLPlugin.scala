@@ -23,8 +23,6 @@ object WixMySQLPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  override def requires: Plugins = JvmPlugin
-
   import autoImport._
 
   override def projectSettings = Seq(

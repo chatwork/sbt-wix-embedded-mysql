@@ -1,4 +1,29 @@
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+import xerial.sbt.Sonatype.autoImport._
+
 sbtPlugin := true
+
+releaseCrossBuild := true
+
+releaseTagName := {
+  (version in ThisBuild).value
+}
+
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("^ publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)
 
 sonatypeProfileName := "com.chatwork"
 
@@ -8,7 +33,17 @@ name := "sbt-wix-embedded-mysql"
 
 publishMavenStyle := true
 
-scalaVersion := "2.10.5"
+publishTo := sonatypePublishTo.value
+
+val sbtCrossVersion = sbtVersion in pluginCrossBuild
+
+scalaVersion := (CrossVersion partialVersion sbtCrossVersion.value match {
+  case Some((0, 13)) => "2.10.6"
+  case Some((1, _)) => "2.12.4"
+  case _ => sys error s"Unhandled sbt version ${sbtCrossVersion.value}"
+})
+
+crossSbtVersions := Seq("0.13.16", "1.0.4")
 
 publishArtifact in Test := false
 
@@ -37,12 +72,8 @@ pomExtra := {
     </developers>
 }
 
-credentials := Def.task {
-  val ivyCredentials = (baseDirectory in LocalRootProject).value / ".credentials"
-  val result = Credentials(ivyCredentials) :: Nil
-  result
-}.value
 
+credentials += Credentials((baseDirectory in LocalRootProject).value / ".credentials")
 
 scalacOptions ++= Seq(
   "-feature"
@@ -59,6 +90,7 @@ scalacOptions ++= Seq(
   , "-Ywarn-nullary-unit" // Warn when nullary methods return Unit.
   , "-Ywarn-numeric-widen" // Warn when numerics are widened.
 )
+scalacOptions -= "-Ybackend:GenBCode"
 
 resolvers ++= Seq(
   "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/",
@@ -68,6 +100,14 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-  "com.wix"         % "wix-embedded-mysql" % "2.2.4"
+  "com.wix" % "wix-embedded-mysql" % "2.2.4"
 )
 
+scriptedBufferLog := false
+
+scriptedLaunchOpts := {
+  scriptedLaunchOpts.value ++
+    Seq("-Xmx1024M", "-Dproject.version=" + version.value)
+}
+
+scriptedBufferLog := false

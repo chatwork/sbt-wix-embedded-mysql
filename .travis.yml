@@ -3,7 +3,9 @@ dist: trusty
 sudo: required
 
 language: scala
-scala: "2.10.5"
+
+scala: "2.12.4"
+
 jdk: oraclejdk8
 
 before_install:
@@ -19,6 +21,7 @@ before_cache:
   - find $HOME/.sbt -name "*.lock" -delete
 
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION scripted
+  - sbt ";++2.10.6;^^0.13.6;scripted"
+  - sbt ";++2.12.4;^^1.0.4;scripted"
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm

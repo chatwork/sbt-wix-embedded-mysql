@@ -15,10 +15,12 @@ Add this to your project/plugins.sbt file:
 
 **`project/plugins.sbt`**
 
+Supported sbt versions are 0.13.x and 1.0.x.
+
 ```scala
 resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
 
-addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.8")
+addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.9")
 ```
 
 ## Usage

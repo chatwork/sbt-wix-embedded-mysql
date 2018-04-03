@@ -2,14 +2,14 @@ package com.chatwork.sbt.wix.embedded.mysql
 
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 
 import com.wix.mysql.SqlScriptSource
-import com.wix.mysql.config.{ Charset, DownloadConfig, MysqldConfig, SchemaConfig }
-import sbt.{ AutoPlugin, _ }
+import com.wix.mysql.config.{Charset, DownloadConfig, MysqldConfig, SchemaConfig}
+import sbt.{AutoPlugin, _}
 import com.wix.mysql.config.DownloadConfig.aDownloadConfig
-import com.wix.mysql.distribution.{ Version => WixMySQLVersion }
+import com.wix.mysql.distribution.{Version => WixMySQLVersion}
 import com.wix.mysql.EmbeddedMysql
-import sbt.plugins.JvmPlugin
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
@@ -20,6 +20,18 @@ import sbt.Keys._
 import scala.collection.mutable.ArrayBuffer
 
 object WixMySQLPlugin extends AutoPlugin {
+
+  implicit class AtomicReferenceOps(val self: AtomicReference[EmbeddedMysql]) extends AnyVal {
+    def toOption: Option[EmbeddedMysql] = Option(self.get())
+    def isEmpty: Boolean = toOption.isEmpty
+    def nonEmpty: Boolean = toOption.nonEmpty
+    def getOrElse[B >: EmbeddedMysql](value: B): B = toOption.getOrElse(value)
+    def set(ref: Option[EmbeddedMysql]): AtomicReference[EmbeddedMysql] = {
+      self.set(ref.orNull)
+      self
+    }
+
+  }
 
   override def trigger = allRequirements
 
@@ -72,7 +84,7 @@ object WixMySQLPlugin extends AutoPlugin {
         if (scripts.isEmpty) builderWithCommands else builderWithCommands.withScripts(scripts.asJava)
       Some(builderWithScripts.build())
     },
-    wixMySQLInstance := None,
+    wixMySQLInstance := new AtomicReference[EmbeddedMysql](),
     wixMySQLStart := Def.task {
       val logger = streams.value.log
       if (wixMySQLInstance.value.isEmpty) {
@@ -109,26 +121,24 @@ object WixMySQLPlugin extends AutoPlugin {
             loggingMysqldConfig(instance.getConfig)
             instance
         }
-        wixMySQLInstance := Some(instance)
+        wixMySQLInstance.value.set(Some(instance))
         logger.info("wixMySQL: mysqld has started")
         instance
       } else {
         logger.info("wixMySQL: mysqld has already been started")
-        wixMySQLInstance.value.getOrElse(throw new AssertionError("assertion failed: wixMySQLInstance is empty"))
+        wixMySQLInstance.value.get
       }
     }.value,
     wixMySQLStop := Def.task {
       val logger = streams.value.log
       if (wixMySQLInstance.value.nonEmpty) {
         try {
-          wixMySQLInstance.value
-            .getOrElse(throw new AssertionError("assertion failed: wixMySQLInstance is empty"))
-            .stop()
+          wixMySQLInstance.value.get.stop()
         } catch {
           case ex: Throwable =>
             logger.error(ex.getMessage)
         }
-        wixMySQLInstance := None
+        wixMySQLInstance.value.set(None)
         logger.info("wixMySQL: mysqld has stopped")
       } else {
         logger.info("wixMySQL: mysqld has already been stopped")
@@ -155,7 +165,7 @@ object WixMySQLPlugin extends AutoPlugin {
     val wixMySQLSchamaScripts  = settingKey[Seq[SqlScriptSource]]("wix-mysql-schema-scripts")
     val wixMySQLStart          = taskKey[EmbeddedMysql]("wix-mysql-start")
     val wixMySQLStop           = taskKey[Unit]("wix-mysql-stop")
-    val wixMySQLInstance       = settingKey[Option[EmbeddedMysql]]("wix-mysql-instance")
+    val wixMySQLInstance       = settingKey[AtomicReference[EmbeddedMysql]]("wix-mysql-instance")
   }
 
 }

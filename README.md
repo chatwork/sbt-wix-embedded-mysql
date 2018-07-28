@@ -2,8 +2,8 @@
 
 [![Build Status](https://travis-ci.org/chatwork/sbt-wix-embbed-mysql.svg)](https://travis-ci.org/chatwork/sbt-wix-embbed-mysql)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.chatwork/sbt-wix-embedded-mysql/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.chatwork/sbt-wix-embedded-mysql)
-[![Scaladoc](http://javadoc-badge.appspot.com/com.chatwork/sbt-wix-embbed-mysql.svg?label=scaladoc)](http://javadoc-badge.appspot.com/com.chatwork/sbt-wix-embbed-mysql_2.10)
-[![Reference Status](https://www.versioneye.com/java/com.chatwork:sbt-wix-embbed-mysql_2.10/reference_badge.svg?style=flat)](https://www.versioneye.com/java/com.chatwork:sbt-wix-embbed-mysql_2.10/references)
+[![Scaladoc](http://javadoc-badge.appspot.com/com.chatwork/sbt-wix-embedded-mysql.svg?label=scaladoc)](http://javadoc-badge.appspot.com/com.chatwork/sbt-wix-embedded-mysql)
+[![Reference Status](https://www.versioneye.com/java/com.chatwork:sbt-wix-embedded-mysql/reference_badge.svg?style=flat)](https://www.versioneye.com/java/com.chatwork:sbt-wix-embedded-mysql/references)
 
 sbt-wix-embedded-mysql is sbt-plugin for [wix-embedded-mysql](https://github.com/wix/wix-embedded-mysql)
 

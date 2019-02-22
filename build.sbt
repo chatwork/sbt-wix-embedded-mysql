@@ -100,7 +100,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-  "com.wix" % "wix-embedded-mysql" % "2.2.4"
+  "com.wix" % "wix-embedded-mysql" % "4.2.0"
 )
 
 scriptedBufferLog := false

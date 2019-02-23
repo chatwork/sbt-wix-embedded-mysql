@@ -3,8 +3,6 @@ import xerial.sbt.Sonatype.autoImport._
 
 sbtPlugin := true
 
-releaseCrossBuild := true
-
 releaseTagName := {
   (version in ThisBuild).value
 }
@@ -18,7 +16,7 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  releaseStepCommandAndRemaining("^ publishSigned"),
+  releaseStepCommandAndRemaining("publishSigned"),
   setNextVersion,
   commitNextVersion,
   releaseStepCommand("sonatypeReleaseAll"),
@@ -35,15 +33,9 @@ publishMavenStyle := true
 
 publishTo := sonatypePublishTo.value
 
-val sbtCrossVersion = sbtVersion in pluginCrossBuild
+scalaVersion := "2.12.8"
 
-scalaVersion := (CrossVersion partialVersion sbtCrossVersion.value match {
-  case Some((0, 13)) => "2.10.6"
-  case Some((1, _)) => "2.12.4"
-  case _ => sys error s"Unhandled sbt version ${sbtCrossVersion.value}"
-})
-
-crossSbtVersions := Seq("0.13.16", "1.0.4")
+// sbtVersion := "1.2.8"
 
 publishArtifact in Test := false
 
@@ -100,7 +92,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-  "com.wix" % "wix-embedded-mysql" % "2.2.4"
+  "com.wix" % "wix-embedded-mysql" % "4.2.0"
 )
 
 scriptedBufferLog := false

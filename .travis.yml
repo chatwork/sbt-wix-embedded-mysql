@@ -21,7 +21,6 @@ before_cache:
   - find $HOME/.sbt -name "*.lock" -delete
 
 script:
-  - sbt ";++2.10.6;^^0.13.6;scripted"
-  - sbt ";++2.12.4;^^1.0.4;scripted"
+  - sbt scripted
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm

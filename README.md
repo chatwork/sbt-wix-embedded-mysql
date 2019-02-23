@@ -20,7 +20,7 @@ Supported sbt version is 1.x.
 ```scala
 resolvers += "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/"
 
-addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.9")
+addSbtPlugin("com.chatwork" % "sbt-wix-embedded-mysql" % "1.0.11")
 ```
 
 ## Usage

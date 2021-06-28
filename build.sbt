@@ -1,105 +1,67 @@
-import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
-import xerial.sbt.Sonatype.autoImport._
+import Dependencies._
+import sbt.ScriptedPlugin.autoImport._
 
-sbtPlugin := true
+ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
 
-releaseTagName := {
-  (version in ThisBuild).value
-}
-
-releasePublishArtifactsAction := PgpKeys.publishSigned.value
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommandAndRemaining("publishSigned"),
-  setNextVersion,
-  commitNextVersion,
-  releaseStepCommand("sonatypeReleaseAll"),
-  pushChanges
+lazy val baseSettings = Seq(
+  organization := "com.chatwork",
+  homepage := Some(url("https://github.com/chatwork/sbt-wix-embedded-mysql")),
+  licenses := List("The MIT License" -> url("http://opensource.org/licenses/MIT")),
+  developers := List(
+    Developer(
+      id = "j5ik2o",
+      name = "Junichi Kato",
+      email = "j5ik2o@gmail.com",
+      url = url("https://blog.j5ik2o.me")
+    ),
+    Developer(
+      id = "exoego",
+      name = "TATSUNO Yasuhiro",
+      email = "ytatsuno.jp@gmail.com",
+      url = url("https://www.exoego.net")
+    )
+  ),
+  scalaVersion := Versions.scala212Version,
+  scalacOptions ++= (
+    Seq(
+      "-feature",
+      "-deprecation",
+      "-unchecked",
+      "-encoding",
+      "UTF-8",
+      "-language:_",
+      "-Ydelambdafy:method",
+      "-target:jvm-1.8",
+      "-Yrangepos",
+      "-Ywarn-unused"
+    )
+  ),
+  resolvers ++= Seq(
+    Resolver.sonatypeRepo("snapshots"),
+    Resolver.sonatypeRepo("releases")
+  ),
+  semanticdbEnabled := true,
+  semanticdbVersion := scalafixSemanticdb.revision,
+  Test / publishArtifact := false,
+  Test / parallelExecution := false,
+  sbtPlugin := true
 )
 
-sonatypeProfileName := "com.chatwork"
+val root = (project in file("."))
+  .enablePlugins(SbtPlugin)
+  .settings(baseSettings)
+  .settings(
+    name := "sbt-wix-embedded-mysql",
+    scriptedBufferLog := false,
+    scriptedLaunchOpts := {
+      scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-Dproject.version=" + version.value)
+    },
+    libraryDependencies ++= Seq(
+      "org.scalatest" %% "scalatest"          % "3.0.1" % Test,
+      "com.wix"        % "wix-embedded-mysql" % "4.6.1"
+    )
+  )
 
-organization := "com.chatwork"
-
-name := "sbt-wix-embedded-mysql"
-
-publishMavenStyle := true
-
-publishTo := sonatypePublishTo.value
-
-scalaVersion := "2.12.8"
-
-// sbtVersion := "1.2.8"
-
-publishArtifact in Test := false
-
-pomIncludeRepository := {
-  _ => false
-}
-
-pomExtra := {
-  <url>https://github.com/chatwork/sbt-wix-embedded-mysql</url>
-    <licenses>
-      <license>
-        <name>The MIT License</name>
-        <url>http://opensource.org/licenses/MIT</url>
-      </license>
-    </licenses>
-    <scm>
-      <url>git@github.com:chatwork/sbt-wix-embedded-mysql.git</url>
-      <connection>scm:git:github.com/chatwork/sbt-wix-embedded-mysql</connection>
-      <developerConnection>scm:git:git@github.com:chatwork/sbt-wix-embedded-mysql.git</developerConnection>
-    </scm>
-    <developers>
-      <developer>
-        <id>j5ik2o</id>
-        <name>Junichi Kato</name>
-      </developer>
-    </developers>
-}
-
-
-credentials += Credentials((baseDirectory in LocalRootProject).value / ".credentials")
-
-scalacOptions ++= Seq(
-  "-feature"
-  , "-deprecation"
-  , "-unchecked"
-  , "-encoding"
-  , "UTF-8"
-  , "-Xfatal-warnings"
-  , "-language:_"
-  , "-Ywarn-adapted-args" // Warn if an argument list is modified to match the receiver
-  , "-Ywarn-dead-code" // Warn when dead code is identified.
-  , "-Ywarn-inaccessible" // Warn about inaccessible types in method signatures.
-  , "-Ywarn-nullary-override" // Warn when non-nullary `def f()' overrides nullary `def f'
-  , "-Ywarn-nullary-unit" // Warn when nullary methods return Unit.
-  , "-Ywarn-numeric-widen" // Warn when numerics are widened.
-)
-scalacOptions -= "-Ybackend:GenBCode"
-
-resolvers ++= Seq(
-  "Sonatype OSS Snapshot Repository" at "https://oss.sonatype.org/content/repositories/snapshots/",
-  "Sonatype OSS Release Repository" at "https://oss.sonatype.org/content/repositories/releases/",
-  "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
-)
-
-libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-  "com.wix" % "wix-embedded-mysql" % "4.2.0"
-)
-
-scriptedBufferLog := false
-
-scriptedLaunchOpts := {
-  scriptedLaunchOpts.value ++
-    Seq("-Xmx1024M", "-Dproject.version=" + version.value)
-}
-
-scriptedBufferLog := false
+addCommandAlias("lint", ";scalafmtCheck;test:scalafmtCheck;scalafmtSbtCheck;scalafixAll --check")
+addCommandAlias("fmt", ";scalafmtAll;scalafmtSbt;scalafix RemoveUnused")

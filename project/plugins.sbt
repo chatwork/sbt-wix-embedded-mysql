@@ -1,7 +1,7 @@
-addSbtPlugin("com.lucidchart" % "sbt-scalafmt"  % "1.15")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.2")
 
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "2.1")
+addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.7")
 
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.29")
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.7")
+addDependencyTreePlugin

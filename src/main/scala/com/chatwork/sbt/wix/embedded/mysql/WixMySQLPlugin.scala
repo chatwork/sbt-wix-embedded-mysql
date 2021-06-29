@@ -21,7 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object WixMySQLPlugin extends AutoPlugin {
 
-  implicit class AtomicReferenceOps(val self: AtomicReference[EmbeddedMysql]) extends AnyVal {
+  implicit class AtomicReferenceOps(private val self: AtomicReference[EmbeddedMysql]) extends AnyVal {
     def toOption: Option[EmbeddedMysql]            = Option(self.get())
     def isEmpty: Boolean                           = toOption.isEmpty
     def nonEmpty: Boolean                          = toOption.nonEmpty
@@ -38,7 +38,7 @@ object WixMySQLPlugin extends AutoPlugin {
 
   import autoImport._
 
-  override def projectSettings = Seq(
+  override def projectSettings: Seq[Setting[_ <: Object]] = Seq(
     wixMySQLVersion := WixMySQLVersion.v8_latest,
     wixMySQLDownloadPath := Some(baseDirectory.value + "/target"),
     wixMySQLDownloadConfig := Some(
@@ -148,25 +148,35 @@ object WixMySQLPlugin extends AutoPlugin {
   )
 
   object autoImport {
-    val wixMySQLVersion        = settingKey[WixMySQLVersion]("wix-mysql-version")
-    val wixMySQLDownloadConfig = settingKey[Option[DownloadConfig]]("wix-mysql-download-config")
-    val wixMySQLDownloadPath   = settingKey[Option[String]]("wix-mysql-download-path")
-    val wixMySQLMysqldConfig   = settingKey[Option[MysqldConfig]]("wix-mysql-mysqld-config")
-    val wixMySQLTempPath       = settingKey[Option[String]]("wix-mysql-temp-path")
-    val wixMySQLPort           = settingKey[Option[Int]]("wix-mysql-port")
-    val wixMySQLCharset        = settingKey[Option[Charset]]("wix-mysql-charset")
-    val wixMySQLTimeout        = settingKey[Option[Duration]]("wix-mysql-timeout")
-    val wixMySQLTimeZone       = settingKey[Option[TimeZone]]("wix-mysql-timezone")
-    val wixMySQLUserName       = settingKey[Option[String]]("wix-mysql-user-name")
-    val wixMySQLPassword       = settingKey[Option[String]]("wix-mysql-password")
-    val wixMySQLSchemaConfig   = settingKey[Option[SchemaConfig]]("wix-mysql-schema-config")
-    val wixMySQLSchemaName     = settingKey[String]("wix-mysql-schema-name")
-    val wixMySQLSchemaCharset  = settingKey[Option[Charset]]("wix-mysql-schema-charset")
-    val wixMySQLSchemaCommands = settingKey[Seq[String]]("wix-msyql-schema-commands")
-    val wixMySQLSchemaScripts  = settingKey[Seq[SqlScriptSource]]("wix-mysql-schema-scripts")
-    val wixMySQLStart          = taskKey[EmbeddedMysql]("wix-mysql-start")
-    val wixMySQLStop           = taskKey[Unit]("wix-mysql-stop")
-    val wixMySQLInstance       = settingKey[AtomicReference[EmbeddedMysql]]("wix-mysql-instance")
+    val wixMySQLVersion: SettingKey[WixMySQLVersion] = settingKey[WixMySQLVersion]("wix-mysql-version")
+
+    val wixMySQLDownloadConfig: SettingKey[Option[DownloadConfig]] =
+      settingKey[Option[DownloadConfig]]("wix-mysql-download-config")
+    val wixMySQLDownloadPath: SettingKey[Option[String]] = settingKey[Option[String]]("wix-mysql-download-path")
+
+    val wixMySQLMysqldConfig: SettingKey[Option[MysqldConfig]] =
+      settingKey[Option[MysqldConfig]]("wix-mysql-mysqld-config")
+    val wixMySQLTempPath: SettingKey[Option[String]]   = settingKey[Option[String]]("wix-mysql-temp-path")
+    val wixMySQLPort: SettingKey[Option[Int]]          = settingKey[Option[Int]]("wix-mysql-port")
+    val wixMySQLCharset: SettingKey[Option[Charset]]   = settingKey[Option[Charset]]("wix-mysql-charset")
+    val wixMySQLTimeout: SettingKey[Option[Duration]]  = settingKey[Option[Duration]]("wix-mysql-timeout")
+    val wixMySQLTimeZone: SettingKey[Option[TimeZone]] = settingKey[Option[TimeZone]]("wix-mysql-timezone")
+    val wixMySQLUserName: SettingKey[Option[String]]   = settingKey[Option[String]]("wix-mysql-user-name")
+    val wixMySQLPassword: SettingKey[Option[String]]   = settingKey[Option[String]]("wix-mysql-password")
+
+    val wixMySQLSchemaConfig: SettingKey[Option[SchemaConfig]] =
+      settingKey[Option[SchemaConfig]]("wix-mysql-schema-config")
+    val wixMySQLSchemaName: SettingKey[String]             = settingKey[String]("wix-mysql-schema-name")
+    val wixMySQLSchemaCharset: SettingKey[Option[Charset]] = settingKey[Option[Charset]]("wix-mysql-schema-charset")
+    val wixMySQLSchemaCommands: SettingKey[Seq[String]]    = settingKey[Seq[String]]("wix-msyql-schema-commands")
+
+    val wixMySQLSchemaScripts: SettingKey[Seq[SqlScriptSource]] =
+      settingKey[Seq[SqlScriptSource]]("wix-mysql-schema-scripts")
+    val wixMySQLStart: TaskKey[EmbeddedMysql] = taskKey[EmbeddedMysql]("wix-mysql-start")
+    val wixMySQLStop: TaskKey[Unit]           = taskKey[Unit]("wix-mysql-stop")
+
+    val wixMySQLInstance: SettingKey[AtomicReference[EmbeddedMysql]] =
+      settingKey[AtomicReference[EmbeddedMysql]]("wix-mysql-instance")
   }
 
 }

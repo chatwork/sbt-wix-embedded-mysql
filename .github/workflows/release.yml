@@ -5,13 +5,7 @@ on:
       - v[1-9]+.[0-9]+.[0-9]+
 jobs:
   test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        jdk: [ adopt@1.8, adopt@1.11, adopt@1.14 ]
-        scala: [ 2.11.12, 2.12.13, 2.13.5 ]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     env:
       JAVA_OPTS: -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
       JVM_OPTS:  -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
@@ -23,9 +17,9 @@ jobs:
           fetch-depth: 0
       - uses: olafurpg/setup-scala@v12
         with:
-          java-version: ${{ matrix.jdk }}
+          java-version: "adopt@1.8"
       - uses: coursier/cache-action@v6
-      - run: sbt -v ++${{ matrix.scala }} test
+      - run: sbt -v test
       - name: clean up
         run: "${GITHUB_WORKSPACE}/.github/clean-up.sh"
   release:

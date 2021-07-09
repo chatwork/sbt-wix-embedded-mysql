@@ -19,6 +19,10 @@ jobs:
         with:
           java-version: "adopt@1.8"
       - uses: coursier/cache-action@v6
+      - run: |
+          sudo echo 'deb http://security.ubuntu.com/ubuntu xenial-security main' | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update -qq
+          sudo apt-get install -y libaio1 libevent-dev libssl-dev libssl1.0.0
       - run: sbt -v test
       - name: clean up
         run: "${GITHUB_WORKSPACE}/.github/clean-up.sh"
@@ -37,6 +41,10 @@ jobs:
         java-version: "adopt@1.8"
     - uses: coursier/cache-action@v6
     - uses: olafurpg/setup-gpg@v3
+    - run: |
+        sudo echo 'deb http://security.ubuntu.com/ubuntu xenial-security main' | sudo tee -a /etc/apt/sources.list
+        sudo apt-get update -qq
+        sudo apt-get install -y libaio1 libevent-dev libssl-dev libssl1.0.0
     - run: sbt -v ci-release
       env:
         PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}

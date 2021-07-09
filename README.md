@@ -61,7 +61,7 @@ You can use sbt tasks that the followings.
 **`build.sbt`**
 
 ```scala
-testOptions in Test ++= Seq(
+Test / testOptions ++= Seq(
   Tests.Setup { () =>
     wixMySQLStart.value
     // If you want to use the flywayMigrate together, please join the two tasks using `Def.sequential` as follows.
@@ -72,25 +72,29 @@ testOptions in Test ++= Seq(
   }
 )
 ```
-### How to use on Travis
+### How to use on Github Actions
 
-**`.travis.yml`**
+**`.github/workflows/ci.yml`**
 
 ```yaml
 # -- snip
-
-before_install:
- - sudo apt-get update -qq && sudo apt-get install -y libaio1
- - sudo hostname "$(hostname | cut -c1-63)"
- 
-os: linux
-dist: trusty
-sudo: required
-
+steps:
+  - uses: actions/checkout@v2.3.4
+    with:
+      fetch-depth: 0
+  - uses: olafurpg/setup-scala@v12
+    with:
+      java-version: "adopt@1.8"
+  - uses: coursier/cache-action@v6
+  - run: |
+    sudo echo 'deb http://security.ubuntu.com/ubuntu xenial-security main' | sudo tee -a /etc/apt/sources.list
+    sudo apt-get update -qq
+    sudo apt-get install -y libaio1 libevent-dev libssl-dev libssl1.0.0
+  - run: sbt -v test
 # -- snip
 ```
 
-#### Seting up download cache on Travis
+#### Seting up download cache on Github Actions 
 
 **`build.sbt`**
 
@@ -98,14 +102,14 @@ sudo: required
 wixMySQLDownloadPath := Some(sys.env("HOME") + "/.wixMySQL/downloads"),
 ```
 
-**`.travis.yml`**
+**`.github/workflows/ci.yml`**
 
 ```yaml
 # -- snip
-
-cache:
-  directories:
-    - $HOME/.wixMySQL
-    
+steps:
+  - uses: actions/cache@v2
+    with:
+      path: |
+        ~/.wixMySQL
 # -- snip
 ```

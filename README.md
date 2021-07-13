@@ -35,7 +35,7 @@ If you want default settings, no configuration is necessary. Please refer to [he
 **`build.sbt`**
 
 ```scala
-wixMySQLVersion := com.wix.mysql.distribution.Version.v5_7_latest
+wixMySQLVersion := com.wix.mysql.distribution.Version.v8_latest
 
 wixMySQLSchemaName := "your schema name"
 

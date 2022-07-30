@@ -58,7 +58,7 @@ val root = (project in file("."))
       Seq("-Xmx1024M", "-Dproject.version=" + version.value)
     },
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest"          % "3.2.12" % Test,
+      "org.scalatest" %% "scalatest"          % "3.2.13" % Test,
       "com.wix"        % "wix-embedded-mysql" % "4.6.2"
     )
   )

@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val scala212Version  = "2.12.12"
+    val scala212Version  = "2.12.16"
     val scalaTestVersion = "3.2.9"
   }
 
